@@ -234,9 +234,9 @@ void registrarCliente(Cliente lista[], int *cantidad)
 {
     char nombre[100];
     char cedula[11];
-    int dia;
-    int mes;
-    int etos;
+    int dia = 0;
+    int mes = 0;
+    int etos = 0;
     char usuario[50];
     char contrasena[50];
 
@@ -250,17 +250,103 @@ void registrarCliente(Cliente lista[], int *cantidad)
     fgets(nombre, sizeof(nombre), stdin);
     nombre[strcspn(nombre, "\r\n")] = '\0';
 
-    printf("Ingrese cedula: ");
-    fgets(cedula, sizeof(cedula), stdin);
-    cedula[strcspn(cedula, "\r\n")] = '\0';
+    while (1)
+    {
+        printf("Ingrese cédula: ");
+        if (!fgets(cedula, sizeof(cedula), stdin))
+        {
+            cedula[0] = '\0';
+        }
+        cedula[strcspn(cedula, "\r\n")] = '\0';
 
-    printf("Ingrese día de nacimiento: ");
-    scanf("%d", &dia);
-    printf("Ingrese mes de nacimiento: ");
-    scanf("%d", &mes);
-    printf("Ingrese año de nacimiento: ");
-    scanf("%d", &etos);
-    limpiarBufferEntrada();
+        if (validarCedula(cedula))
+        {
+            break;
+        }
+
+        printf("Cédula inválida. Ingrese una cédula válida de 10 dígitos.\n");
+    }
+
+    while (1)
+    {
+        printf("Ingrese día de nacimiento: ");
+        if (scanf("%d", &dia) != 1)
+        {
+            limpiarBufferEntrada();
+            printf("Día inválido. Ingrese un número entero.\n");
+            continue;
+        }
+
+        printf("Ingrese mes de nacimiento: ");
+        if (scanf("%d", &mes) != 1)
+        {
+            limpiarBufferEntrada();
+            printf("Mes inválido. Ingrese un número entero.\n");
+            continue;
+        }
+
+        printf("Ingrese año de nacimiento: ");
+        if (scanf("%d", &etos) != 1)
+        {
+            limpiarBufferEntrada();
+            printf("Año inválido. Ingrese un número entero.\n");
+            continue;
+        }
+        limpiarBufferEntrada();
+
+        time_t tiempoActual = time(NULL);
+        struct tm *fechaActual = localtime(&tiempoActual);
+
+        if (fechaActual == NULL)
+        {
+            printf("No se pudo obtener la fecha actual. Intente nuevamente.\n");
+            continue;
+        }
+
+        int etosActual = fechaActual->tm_year + 1900;
+        int mesActual = fechaActual->tm_mon + 1;
+        int diaActual = fechaActual->tm_mday;
+
+        if (mes < 1 || mes > 12)
+        {
+            printf("Mes inválido. Ingrese un mes entre 1 y 12.\n");
+            continue;
+        }
+
+        int diasMes[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        int maxDias = diasMes[mes - 1];
+
+        if (mes == 2)
+        {
+            maxDias = ((etos % 400 == 0) || (etos % 4 == 0 && etos % 100 != 0)) ? 29 : 28;
+        }
+
+        if (dia < 1 || dia > maxDias)
+        {
+            printf("Día inválido para ese mes. Ingrese un día válido.\n");
+            continue;
+        }
+
+        if (etos < 1900 || etos > etosActual)
+        {
+            printf("Año inválido. Ingrese un año entre 1900 y %d.\n", etosActual);
+            continue;
+        }
+
+        if (etos > etosActual || (etos == etosActual && (mes > mesActual || (mes == mesActual && dia > diaActual))))
+        {
+            printf("La fecha no puede ser futura. Ingrese una fecha válida.\n");
+            continue;
+        }
+
+        if ((etosActual - etos) < 18 || ((etosActual - etos) == 18 && (mes > mesActual || (mes == mesActual && dia > diaActual))))
+        {
+            printf("Debes ser mayor de 18 años para registrarte.\n");
+            continue;
+        }
+
+        break;
+    }
 
     printf("Ingrese usuario: ");
     fgets(usuario, sizeof(usuario), stdin);
@@ -269,12 +355,6 @@ void registrarCliente(Cliente lista[], int *cantidad)
     printf("Ingrese contraseña: ");
     fgets(contrasena, sizeof(contrasena), stdin);
     contrasena[strcspn(contrasena, "\r\n")] = '\0';
-
-    if (!validarCedula(cedula) || !verificarFechas(dia, mes, etos))
-    {
-        printf("Datos inválidos. No se registró el cliente.\n");
-        return;
-    }
 
     snprintf(lista[*cantidad].nombresCompletos, sizeof(lista[*cantidad].nombresCompletos), "%s", nombre);
     snprintf(lista[*cantidad].cedula, sizeof(lista[*cantidad].cedula), "%s", cedula);
