@@ -256,7 +256,7 @@ void registrarCliente(Cliente lista[], int *cantidad)
     scanf("%d", &dia);
     printf("Ingrese mes de nacimiento: ");
     scanf("%d", &mes);
-    printf("Ingrese anio de nacimiento: ");
+    printf("Ingrese año de nacimiento: ");
     scanf("%d", &etos);
     limpiarBufferEntrada();
 
@@ -280,7 +280,7 @@ void registrarCliente(Cliente lista[], int *cantidad)
     snprintf(lista[*cantidad].contrasena, sizeof(lista[*cantidad].contrasena), "%s", contrasena);
     lista[*cantidad].fechaNacimiento.dia = dia;
     lista[*cantidad].fechaNacimiento.mes = mes;
-    lista[*cantidad].fechaNacimiento.anio = etos;
+    lista[*cantidad].fechaNacimiento.etos = etos;
     asignarNumeroCuentaLuhn(&lista[*cantidad].numeroCuenta, *cantidad);
     lista[*cantidad].saldo = 0.0;
     (*cantidad)++;

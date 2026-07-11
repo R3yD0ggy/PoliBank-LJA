@@ -10,7 +10,7 @@ typedef struct FechaNacimiento
 {
     int dia;
     int mes;
-    int anio;
+    int etos;
 } FechaNacimiento;
 
 typedef struct Cliente
