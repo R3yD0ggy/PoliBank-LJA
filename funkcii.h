@@ -30,6 +30,11 @@ void registrarCliente(Cliente lista[], int *cantidad);
 int validarCedula(const char *cedula);
 void asignarNumeroCuentaLuhn(long long *numeroCuenta, int cantidad);
 int verificarNumeroCuentaLuhn(long long numeroCuenta);
-int iniciarSesion(const Cliente lista[], int cantidad);
+int iniciarSesion(Cliente lista[], int cantidad, int *posicion, int *esAdmin);
+void mostrarMenuCliente(Cliente *cliente, Cliente lista[], int cantidad, int posicion);
+void mostrarMenuAdmin(Cliente lista[], int *cantidad);
+void depositarSaldo(Cliente *cliente, double monto);
+void retirarSaldo(Cliente *cliente, double monto);
+void mostrarDatosCliente(const Cliente *cliente);
 
 #endif

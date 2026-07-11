@@ -1,6 +1,7 @@
 #include "funkcii.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -371,33 +372,207 @@ void registrarCliente(Cliente lista[], int *cantidad)
     printf("Número de cuenta asignado: %lld\n", lista[*cantidad - 1].numeroCuenta);
 }
 
-int iniciarSesion(const Cliente lista[], int cantidad)
+static int leerDoublePositivo(const char *mensaje, double *valor)
+{
+    char entrada[64];
+    char *fin = NULL;
+
+    printf("%s", mensaje);
+    if (!fgets(entrada, sizeof(entrada), stdin))
+    {
+        return 0;
+    }
+
+    errno = 0;
+    *valor = strtod(entrada, &fin);
+
+    if (errno != 0 || fin == entrada || (*fin != '\n' && *fin != '\r' && *fin != '\0') || *valor <= 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+void mostrarDatosCliente(const Cliente *cliente)
+{
+    printf("\n=== DATOS DEL CLIENTE ===\n");
+    printf("Nombre: %s\n", cliente->nombresCompletos);
+    printf("Cédula: %s\n", cliente->cedula);
+    printf("Fecha de nacimiento: %d/%d/%d\n", cliente->fechaNacimiento.dia, cliente->fechaNacimiento.mes, cliente->fechaNacimiento.etos);
+}
+
+void depositarSaldo(Cliente *cliente, double monto)
+{
+    cliente->saldo += monto;
+}
+
+void retirarSaldo(Cliente *cliente, double monto)
+{
+    if (monto > cliente->saldo)
+    {
+        printf("Saldo insuficiente para realizar el retiro.\n");
+        return;
+    }
+
+    cliente->saldo -= monto;
+}
+
+void mostrarMenuCliente(Cliente *cliente, Cliente lista[], int cantidad, int posicion)
+{
+    (void)posicion;
+    int opcion = 0;
+
+    while (1)
+    {
+        printf("\n=== MENÚ CLIENTE ===\n");
+        printf("1. Consultar saldo\n");
+        printf("2. Depositar dinero\n");
+        printf("3. Retirar dinero\n");
+        printf("4. Cerrar sesión\n");
+        printf("Seleccione una opción: ");
+
+        if (scanf("%d", &opcion) != 1)
+        {
+            limpiarBufferEntrada();
+            printf("Opción inválida.\n");
+            continue;
+        }
+        limpiarBufferEntrada();
+
+        switch (opcion)
+        {
+        case 1:
+            mostrarDatosCliente(cliente);
+            printf("Saldo disponible: $%.2f\n", cliente->saldo);
+            break;
+        case 2:
+        {
+            double monto = 0.0;
+            if (!leerDoublePositivo("Ingrese el monto a depositar: ", &monto))
+            {
+                printf("Monto inválido.\n");
+                break;
+            }
+            depositarSaldo(cliente, monto);
+            guardarClientes(lista, cantidad, "clientes.bin");
+            printf("Depósito realizado con éxito.\n");
+            break;
+        }
+        case 3:
+        {
+            double monto = 0.0;
+            if (!leerDoublePositivo("Ingrese el monto a retirar: ", &monto))
+            {
+                printf("Monto inválido.\n");
+                break;
+            }
+            retirarSaldo(cliente, monto);
+            guardarClientes(lista, cantidad, "clientes.bin");
+            printf("Retiro realizado con éxito.\n");
+            break;
+        }
+        case 4:
+            printf("Sesión cerrada.\n");
+            return;
+        default:
+            printf("Opción inválida.\n");
+            break;
+        }
+    }
+}
+
+void mostrarMenuAdmin(Cliente lista[], int *cantidad)
+{
+    int opcion = 0;
+
+    while (1)
+    {
+        printf("\n=== MENÚ ADMINISTRADOR ===\n");
+        printf("1. Revisar clientes\n");
+        printf("2. Registrar otro cliente\n");
+        printf("3. Salir\n");
+        printf("Seleccione una opción: ");
+
+        if (scanf("%d", &opcion) != 1)
+        {
+            limpiarBufferEntrada();
+            printf("Opción inválida.\n");
+            continue;
+        }
+        limpiarBufferEntrada();
+
+        switch (opcion)
+        {
+        case 1:
+            printf("\n=== CLIENTES REGISTRADOS ===\n");
+            if (*cantidad <= 0)
+            {
+                printf("No hay clientes registrados.\n");
+                break;
+            }
+            for (int i = 0; i < *cantidad; i++)
+            {
+                printf("%d. %s | Cédula: %s | Usuario: %s | Saldo: $%.2f\n",
+                       i + 1,
+                       lista[i].nombresCompletos,
+                       lista[i].cedula,
+                       lista[i].usuario,
+                       lista[i].saldo);
+            }
+            break;
+        case 2:
+            registrarCliente(lista, cantidad);
+            guardarClientes(lista, *cantidad, "clientes.bin");
+            break;
+        case 3:
+            printf("Saliendo del menú administrador.\n");
+            return;
+        default:
+            printf("Opción inválida.\n");
+            break;
+        }
+    }
+}
+
+int iniciarSesion(Cliente lista[], int cantidad, int *posicion, int *esAdmin)
 {
     configurarSalidaTexto();
 
     char usuarioIngresado[50];
     char contrasenaIngresada[50];
-    int encontrado = 0;
 
     printf("\n=== INICIO DE SESIÓN ===\n");
     printf("Ingrese su usuario: ");
     fgets(usuarioIngresado, sizeof(usuarioIngresado), stdin);
-    usuarioIngresado[strcspn(usuarioIngresado, "\r\n")] = '\0'; 
-    
+    usuarioIngresado[strcspn(usuarioIngresado, "\r\n")] = '\0';
+
     printf("Ingrese su contraseña: ");
     fgets(contrasenaIngresada, sizeof(contrasenaIngresada), stdin);
-    contrasenaIngresada[strcspn(contrasenaIngresada, "\r\n")] = '\0'; 
-    
+    contrasenaIngresada[strcspn(contrasenaIngresada, "\r\n")] = '\0';
+
+    if (strcmp(usuarioIngresado, "R3yD0ggy") == 0 && strcmp(contrasenaIngresada, "admin123") == 0)
+    {
+        *posicion = -1;
+        *esAdmin = 1;
+        printf("\n[ÉXITO] Bienvenido administrador.\n");
+        return 1;
+    }
+
     for (int i = 0; i < cantidad; i++)
     {
         if (strcmp(lista[i].usuario, usuarioIngresado) == 0 && strcmp(lista[i].contrasena, contrasenaIngresada) == 0)
         {
+            *posicion = i;
+            *esAdmin = 0;
             printf("\n[ÉXITO] Bienvenido/a, %s!\n", lista[i].nombresCompletos);
             printf("Número de cuenta: %lld | Saldo disponible: $%.2f\n", lista[i].numeroCuenta, lista[i].saldo);
-            return i; 
+            return 1;
         }
     }
-    
+
+    *posicion = -1;
+    *esAdmin = 0;
     printf("\n[ERROR] Usuario o contraseña incorrectos.\n");
-    return -1; // Retorna -1 si no se encontró a nadie
+    return 0;
 }

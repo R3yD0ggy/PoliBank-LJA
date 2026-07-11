@@ -42,15 +42,27 @@ int main(void)
 
         case 2:
         {
-            int posicionLogueada = iniciarSesion(lista, cantidad);
+            int posicionLogueada = -1;
+            int esAdmin = 0;
 
-            if (posicionLogueada == -1)
+            if (iniciarSesion(lista, cantidad, &posicionLogueada, &esAdmin))
+            {
+                if (esAdmin)
+                {
+                    mostrarMenuAdmin(lista, &cantidad);
+                }
+                else
+                {
+                    mostrarMenuCliente(&lista[posicionLogueada], lista, cantidad, posicionLogueada);
+                }
+            }
+            else
             {
                 char respuesta;
                 printf("\n¿Desea registrarse como un nuevo cliente en Polibank? (s/n): ");
-                scanf(" %c", &respuesta); 
-                while (getchar() != '\n') {} 
-                
+                scanf(" %c", &respuesta);
+                while (getchar() != '\n') {}
+
                 if (respuesta == 's' || respuesta == 'S')
                 {
                     printf("\n--- Redireccionando al registro ---\n");
@@ -60,6 +72,7 @@ int main(void)
             }
             break;
         }
+        
         case 3:
             printf("Saliendo del sistema Polibank... ¡Hasta luego!\n");
             break;
