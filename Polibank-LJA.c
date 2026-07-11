@@ -6,17 +6,17 @@
 void Menu(void)
 {
     printf("=== Polibank ===\n");
-    printf("1. ¿No tienes una cuenta? Regístrate para obtener una.\n");
-    printf("2. ¿Ya eres cliente? Inicia sesión para acceder a tu cuenta.\n");
+    printf("1. Â¿No tienes una cuenta? RegÃ­strate para obtener una.\n");
+    printf("2. Â¿Ya eres cliente? Inicia sesiÃ³n para acceder a tu cuenta.\n");
     printf("3. Salir del programa.\n");
-    printf("Seleccione una opción: ");
+    printf("Seleccione una opciÃ³n: ");
 }
 
 int main(void)
 {
-    setlocale(LC_ALL, "Spanish");
-    SetConsoleOutputCP(1252);
-    SetConsoleCP(1252);
+    setlocale(LC_ALL, ".UTF8");
+    SetConsoleOutputCP(65001);
+    SetConsoleCP(65001);
 
     Cliente lista[MAX_CLIENTES];
     int cantidad = 0;
@@ -46,7 +46,7 @@ int main(void)
             if (posicionLogueada == -1)
             {
                 char respuesta;
-                printf("\n¿Desea registrarse como un nuevo cliente en Polibank? (s/n): ");
+                printf("\nÂ¿Desea registrarse como un nuevo cliente en Polibank? (s/n): ");
                 scanf(" %c", &respuesta); 
                 while (getchar() != '\n') {} 
                 
@@ -59,10 +59,10 @@ int main(void)
             }
             break;
         case 3:
-            printf("Saliendo del sistema Polibank... ¡Hasta luego!\n");
+            printf("Saliendo del sistema Polibank... Â¡Hasta luego!\n");
             break;
         default:
-            printf("Opción inválida. Intente nuevamente.\n");
+            printf("OpciÃ³n invÃ¡lida. Intente nuevamente.\n");
             break;
         }
     } while (opcion != 3);

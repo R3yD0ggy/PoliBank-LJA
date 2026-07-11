@@ -10,9 +10,10 @@
 
 static void configurarSalidaTexto(void)
 {
-    setlocale(LC_ALL, "Spanish");
-    SetConsoleOutputCP(1252);
-    SetConsoleCP(1252);
+    setlocale(LC_ALL, ".UTF8");
+    SetConsoleOutputCP(65001);
+    SetConsoleCP(65001);
+
 }
 
 static void limpiarBufferEntrada(void)
@@ -37,7 +38,7 @@ int guardarClientes(const Cliente lista[], int cantidad, const char *nombreArchi
     size_t escritos = fwrite(lista, sizeof(Cliente), cantidad, archivo);
     fclose(archivo);
 
-    /* Devolver un booleano para saber si falló o no; 1 = todo salió bien, 0 = algo falló. */
+    /* Devolver un booleano para saber si fallÃ³ o no; 1 = todo saliÃ³ bien, 0 = algo fallÃ³. */
     return (int)escritos == cantidad;
 }
 
@@ -59,10 +60,10 @@ int cargarClientes(Cliente lista[], int *cantidad, const char *nombreArchivo)
     return 1;
 }
 
-/* Crear la función para registrar clientes; se necesita:
-Asignar un número de cuenta por algoritmo Luhn
-Verificar si el número de cédula es válido por algoritmo
-Verificar si tiene una fecha de nacimiento válida y apta para abrir una cuenta. */
+/* Crear la funciÃ³n para registrar clientes; se necesita:
+Asignar un nÃºmero de cuenta por algoritmo Luhn
+Verificar si el nÃºmero de cÃ©dula es vÃ¡lido por algoritmo
+Verificar si tiene una fecha de nacimiento vÃ¡lida y apta para abrir una cuenta. */
 
 int validarCedula(const char *cedula)
 {
@@ -117,7 +118,7 @@ int validarCedula(const char *cedula)
 
 static int verificarFechas(int dia, int mes, int etos)
 {
-    // etos = año en griego
+    // etos = aÃ±o en griego
     time_t tiempoActual = time(NULL);
     struct tm *fechaActual = localtime(&tiempoActual);
 
@@ -168,7 +169,7 @@ static int verificarFechas(int dia, int mes, int etos)
     return (etosActual - etos) > 18 || ((etosActual - etos) == 18 && (mes < mesActual || (mes == mesActual && dia <= diaActual)));
 }
 
-/* Algoritmo de números Luhn para los números de cuenta */
+/* Algoritmo de nÃºmeros Luhn para los nÃºmeros de cuenta */
 static int calcularDigitoVerificadorLuhn(const char *numero)
 {
     int suma = 0;
@@ -241,7 +242,7 @@ void registrarCliente(Cliente lista[], int *cantidad)
 
     if (*cantidad >= MAX_CLIENTES)
     {
-        printf("No se pueden registrar más clientes.\n");
+        printf("No se pueden registrar mÃ¡s clientes.\n");
         return;
     }
 
@@ -253,11 +254,11 @@ void registrarCliente(Cliente lista[], int *cantidad)
     fgets(cedula, sizeof(cedula), stdin);
     cedula[strcspn(cedula, "\r\n")] = '\0';
 
-    printf("Ingrese día de nacimiento: ");
+    printf("Ingrese dÃ­a de nacimiento: ");
     scanf("%d", &dia);
     printf("Ingrese mes de nacimiento: ");
     scanf("%d", &mes);
-    printf("Ingrese año de nacimiento: ");
+    printf("Ingrese aÃ±o de nacimiento: ");
     scanf("%d", &etos);
     limpiarBufferEntrada();
 
@@ -265,13 +266,13 @@ void registrarCliente(Cliente lista[], int *cantidad)
     fgets(usuario, sizeof(usuario), stdin);
     usuario[strcspn(usuario, "\r\n")] = '\0';
 
-    printf("Ingrese contraseña: ");
+    printf("Ingrese contraseÃ±a: ");
     fgets(contrasena, sizeof(contrasena), stdin);
     contrasena[strcspn(contrasena, "\r\n")] = '\0';
 
     if (!validarCedula(cedula) || !verificarFechas(dia, mes, etos))
     {
-        printf("Datos inválidos. No se registró el cliente.\n");
+        printf("Datos invÃ¡lidos. No se registrÃ³ el cliente.\n");
         return;
     }
 
@@ -286,8 +287,8 @@ void registrarCliente(Cliente lista[], int *cantidad)
     lista[*cantidad].saldo = 0.0;
     (*cantidad)++;
 
-    printf("Cliente registrado con éxito.\n");
-    printf("Número de cuenta asignado: %lld\n", lista[*cantidad - 1].numeroCuenta);
+    printf("Cliente registrado con Ã©xito.\n");
+    printf("NÃºmero de cuenta asignado: %lld\n", lista[*cantidad - 1].numeroCuenta);
 }
 
 int iniciarSesion(const Cliente lista[], int cantidad)
@@ -298,12 +299,12 @@ int iniciarSesion(const Cliente lista[], int cantidad)
     char contrasenaIngresada[50];
     int encontrado = 0;
 
-    printf("\n=== INICIO DE SESIÓN ===\n");
+    printf("\n=== INICIO DE SESIÃ“N ===\n");
     printf("Ingrese su usuario: ");
     fgets(usuarioIngresado, sizeof(usuarioIngresado), stdin);
     usuarioIngresado[strcspn(usuarioIngresado, "\r\n")] = '\0'; 
     
-    printf("Ingrese su contraseña: ");
+    printf("Ingrese su contraseÃ±a: ");
     fgets(contrasenaIngresada, sizeof(contrasenaIngresada), stdin);
     contrasenaIngresada[strcspn(contrasenaIngresada, "\r\n")] = '\0'; 
     
@@ -311,12 +312,12 @@ int iniciarSesion(const Cliente lista[], int cantidad)
     {
         if (strcmp(lista[i].usuario, usuarioIngresado) == 0 && strcmp(lista[i].contrasena, contrasenaIngresada) == 0)
         {
-            printf("\n[ÉXITO] Bienvenido/a, %s!\n", lista[i].nombresCompletos);
-            printf("Número de cuenta: %lld | Saldo disponible: $%.2f\n", lista[i].numeroCuenta, lista[i].saldo);
+            printf("\n[Ã‰XITO] Bienvenido/a, %s!\n", lista[i].nombresCompletos);
+            printf("NÃºmero de cuenta: %lld | Saldo disponible: $%.2f\n", lista[i].numeroCuenta, lista[i].saldo);
             return i; 
         }
     }
     
-    printf("\n[ERROR] Usuario o contraseña incorrectos.\n");
-    return -1; // Retorna -1 si no se encontró a nadie
+    printf("\n[ERROR] Usuario o contraseÃ±a incorrectos.\n");
+    return -1; // Retorna -1 si no se encontrÃ³ a nadie
 }
