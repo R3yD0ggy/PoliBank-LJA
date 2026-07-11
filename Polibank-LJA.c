@@ -41,6 +41,7 @@ int main(void)
             break;
 
         case 2:
+        {
             int posicionLogueada = iniciarSesion(lista, cantidad);
 
             if (posicionLogueada == -1)
@@ -58,6 +59,7 @@ int main(void)
                 }
             }
             break;
+        }
         case 3:
             printf("Saliendo del sistema Polibank... ¡Hasta luego!\n");
             break;
