@@ -10,9 +10,9 @@
 
 static void configurarSalidaTexto(void)
 {
-    setlocale(LC_ALL, "");
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
+    setlocale(LC_ALL, "Spanish");
+    SetConsoleOutputCP(1252);
+    SetConsoleCP(1252);
 }
 
 static void limpiarBufferEntrada(void)
@@ -30,14 +30,14 @@ int guardarClientes(const Cliente lista[], int cantidad, const char *nombreArchi
     FILE *archivo = fopen(nombreArchivo, "wb");
     if(archivo == NULL)
     {
-        printf("No se pudo abrir el archivo para hacer el guardado\n");
+        printf("No se pudo abrir el archivo para guardar los datos.\n");
         return 0;
     }
 
     size_t escritos = fwrite(lista, sizeof(Cliente), cantidad, archivo);
     fclose(archivo);
 
-    /*Devolver un booleano para saber si fallo o no, 1 todo salio bien, 0 algo fallo*/
+    /* Devolver un booleano para saber si falló o no; 1 = todo salió bien, 0 = algo falló. */
     return (int)escritos == cantidad;
 }
 
@@ -59,10 +59,10 @@ int cargarClientes(Cliente lista[], int *cantidad, const char *nombreArchivo)
     return 1;
 }
 
-/*Crear la funcion para registrar clientes, se necesita:
-Asignar un numero de cuenta por algoritmo Luhn
-Verificar si el numero de cedula es valido por algoritmo
-verificar si tiene una fecha de nacimiento valida y apta para abrir una cuenta*/
+/* Crear la función para registrar clientes; se necesita:
+Asignar un número de cuenta por algoritmo Luhn
+Verificar si el número de cédula es válido por algoritmo
+Verificar si tiene una fecha de nacimiento válida y apta para abrir una cuenta. */
 
 int validarCedula(const char *cedula)
 {
@@ -117,7 +117,7 @@ int validarCedula(const char *cedula)
 
 static int verificarFechas(int dia, int mes, int etos)
 {
-    // etos = aÃ±o en griego
+    // etos = año en griego
     time_t tiempoActual = time(NULL);
     struct tm *fechaActual = localtime(&tiempoActual);
 
@@ -168,7 +168,7 @@ static int verificarFechas(int dia, int mes, int etos)
     return (etosActual - etos) > 18 || ((etosActual - etos) == 18 && (mes < mesActual || (mes == mesActual && dia <= diaActual)));
 }
 
-/* Algoritmo de nÃºmeros Luhn para los nÃºmeros de cuenta */
+/* Algoritmo de números Luhn para los números de cuenta */
 static int calcularDigitoVerificadorLuhn(const char *numero)
 {
     int suma = 0;
@@ -209,6 +209,7 @@ void asignarNumeroCuentaLuhn(long long *numeroCuenta, int cantidad)
 
 int verificarNumeroCuentaLuhn(long long numeroCuenta)
 {
+    SetConsoleOutputCP(CP_UTF8);
     char texto[32];
     char base[32];
     int longitud;
@@ -240,7 +241,7 @@ void registrarCliente(Cliente lista[], int *cantidad)
 
     if (*cantidad >= MAX_CLIENTES)
     {
-        printf("No se pueden registrar mas clientes.\n");
+        printf("No se pueden registrar más clientes.\n");
         return;
     }
 
@@ -252,11 +253,11 @@ void registrarCliente(Cliente lista[], int *cantidad)
     fgets(cedula, sizeof(cedula), stdin);
     cedula[strcspn(cedula, "\r\n")] = '\0';
 
-    printf("Ingrese dia de nacimiento: ");
+    printf("Ingrese día de nacimiento: ");
     scanf("%d", &dia);
     printf("Ingrese mes de nacimiento: ");
     scanf("%d", &mes);
-    printf("Ingrese aÃ±o de nacimiento: ");
+    printf("Ingrese año de nacimiento: ");
     scanf("%d", &etos);
     limpiarBufferEntrada();
 
@@ -264,13 +265,13 @@ void registrarCliente(Cliente lista[], int *cantidad)
     fgets(usuario, sizeof(usuario), stdin);
     usuario[strcspn(usuario, "\r\n")] = '\0';
 
-    printf("Ingrese contraseÃ±a: ");
+    printf("Ingrese contraseña: ");
     fgets(contrasena, sizeof(contrasena), stdin);
     contrasena[strcspn(contrasena, "\r\n")] = '\0';
 
     if (!validarCedula(cedula) || !verificarFechas(dia, mes, etos))
     {
-        printf("Datos invalidos. No se registro el cliente.\n");
+        printf("Datos inválidos. No se registró el cliente.\n");
         return;
     }
 
@@ -285,8 +286,8 @@ void registrarCliente(Cliente lista[], int *cantidad)
     lista[*cantidad].saldo = 0.0;
     (*cantidad)++;
 
-    printf("Cliente registrado con exito.\n");
-    printf("Numero de cuenta asignado: %lld\n", lista[*cantidad - 1].numeroCuenta);
+    printf("Cliente registrado con éxito.\n");
+    printf("Número de cuenta asignado: %lld\n", lista[*cantidad - 1].numeroCuenta);
 }
 
 int iniciarSesion(const Cliente lista[], int cantidad)
@@ -294,28 +295,28 @@ int iniciarSesion(const Cliente lista[], int cantidad)
     configurarSalidaTexto();
 
     char usuarioIngresado[50];
-    char contraseÃ±aIngresada[50];
+    char contrasenaIngresada[50];
     int encontrado = 0;
-    
-    printf("\n=== INICIO DE SESIÃ“N ===\n");
+
+    printf("\n=== INICIO DE SESIÓN ===\n");
     printf("Ingrese su usuario: ");
     fgets(usuarioIngresado, sizeof(usuarioIngresado), stdin);
     usuarioIngresado[strcspn(usuarioIngresado, "\r\n")] = '\0'; 
     
-    printf("Ingrese su contraseÃ±a: ");
-    fgets(contraseÃ±aIngresada, sizeof(contraseÃ±aIngresada), stdin);
-    contraseÃ±aIngresada[strcspn(contraseÃ±aIngresada, "\r\n")] = '\0'; 
+    printf("Ingrese su contraseña: ");
+    fgets(contrasenaIngresada, sizeof(contrasenaIngresada), stdin);
+    contrasenaIngresada[strcspn(contrasenaIngresada, "\r\n")] = '\0'; 
     
     for (int i = 0; i < cantidad; i++)
     {
-        if (strcmp(lista[i].usuario, usuarioIngresado) == 0 && strcmp(lista[i].contrasena, contraseÃ±aIngresada) == 0)
+        if (strcmp(lista[i].usuario, usuarioIngresado) == 0 && strcmp(lista[i].contrasena, contrasenaIngresada) == 0)
         {
-            printf("\n[Ã‰XITO] Bienvenido/a, %s!\n", lista[i].nombresCompletos);
-            printf("Numero de cuenta: %lld | Saldo disponible: $%.2f\n", lista[i].numeroCuenta, lista[i].saldo);
+            printf("\n[ÉXITO] Bienvenido/a, %s!\n", lista[i].nombresCompletos);
+            printf("Número de cuenta: %lld | Saldo disponible: $%.2f\n", lista[i].numeroCuenta, lista[i].saldo);
             return i; 
         }
     }
     
-    printf("\n[ERROR] Usuario o contraseÃ±a incorrectos.\n");
-    return -1; // Retorna -1 si no se encontrÃ³ a nadie
+    printf("\n[ERROR] Usuario o contraseña incorrectos.\n");
+    return -1; // Retorna -1 si no se encontró a nadie
 }
