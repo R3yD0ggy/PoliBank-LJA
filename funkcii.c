@@ -394,6 +394,26 @@ static int leerDoublePositivo(const char *mensaje, double *valor)
     return 1;
 }
 
+int buscarClientePorNumeroCuenta(const Cliente lista[], int cantidad, long long numeroCuenta, int *posicion)
+{
+    if (posicion == NULL)
+    {
+        return 0;
+    }
+
+    for (int i = 0; i < cantidad; i++)
+    {
+        if (lista[i].numeroCuenta == numeroCuenta)
+        {
+            *posicion = i;
+            return 1;
+        }
+    }
+
+    *posicion = -1;
+    return 0;
+}
+
 void mostrarDatosCliente(const Cliente *cliente)
 {
     printf("\n=== DATOS DEL CLIENTE ===\n");
@@ -418,6 +438,175 @@ void retirarSaldo(Cliente *cliente, double monto)
     cliente->saldo -= monto;
 }
 
+void transferirSaldo(Cliente lista[], int cantidad, int posicionOrigen)
+{
+    char entrada[32];
+    char *fin = NULL;
+    long long numeroCuentaDestino = 0;
+    double monto = 0.0;
+    int posicionDestino = -1;
+
+    if (posicionOrigen < 0 || posicionOrigen >= cantidad)
+    {
+        printf("No se puede realizar la transferencia en este momento.\n");
+        return;
+    }
+
+    printf("Ingrese el número de cuenta del destinatario: ");
+    if (!fgets(entrada, sizeof(entrada), stdin))
+    {
+        printf("No se pudo leer el número de cuenta.\n");
+        return;
+    }
+    entrada[strcspn(entrada, "\r\n")] = '\0';
+
+    errno = 0;
+    numeroCuentaDestino = strtoll(entrada, &fin, 10);
+    if (errno != 0 || fin == entrada || (*fin != '\0'))
+    {
+        printf("Número de cuenta inválido.\n");
+        return;
+    }
+
+    if (!verificarNumeroCuentaLuhn(numeroCuentaDestino))
+    {
+        printf("No existe un cliente con ese número de cuenta.\n");
+        return;
+    }
+
+    if (!buscarClientePorNumeroCuenta(lista, cantidad, numeroCuentaDestino, &posicionDestino))
+    {
+        printf("No existe un cliente con ese número de cuenta.\n");
+        return;
+    }
+
+    if (posicionDestino == posicionOrigen)
+    {
+        printf("No puedes transferirte dinero a ti mismo.\n");
+        return;
+    }
+
+    if (!leerDoublePositivo("Ingrese el monto a transferir: ", &monto))
+    {
+        printf("Monto inválido.\n");
+        return;
+    }
+
+    if (monto > lista[posicionOrigen].saldo)
+    {
+        printf("Saldo insuficiente para realizar la transferencia.\n");
+        return;
+    }
+
+    lista[posicionOrigen].saldo -= monto;
+    lista[posicionDestino].saldo += monto;
+    guardarClientes(lista, cantidad, "clientes.bin");
+    printf("Transferencia realizada con éxito.\n");
+}
+
+void modificarCliente(Cliente lista[], int cantidad)
+{
+    char entrada[32];
+    char *fin = NULL;
+    long long numeroCuenta = 0;
+    int posicion = -1;
+    int opcion = 0;
+
+    printf("Ingrese el número de cuenta del cliente a modificar: ");
+    if (!fgets(entrada, sizeof(entrada), stdin))
+    {
+        printf("No se pudo leer el número de cuenta.\n");
+        return;
+    }
+    entrada[strcspn(entrada, "\r\n")] = '\0';
+
+    errno = 0;
+    numeroCuenta = strtoll(entrada, &fin, 10);
+    if (errno != 0 || fin == entrada || (*fin != '\0'))
+    {
+        printf("Número de cuenta inválido.\n");
+        return;
+    }
+
+    if (!verificarNumeroCuentaLuhn(numeroCuenta) || !buscarClientePorNumeroCuenta(lista, cantidad, numeroCuenta, &posicion))
+    {
+        printf("No existe un cliente con ese número de cuenta.\n");
+        return;
+    }
+
+    printf("\nCliente encontrado: %s\n", lista[posicion].nombresCompletos);
+
+    while (1)
+    {
+        printf("\n=== MODIFICAR CLIENTE ===\n");
+        printf("1. Cambiar usuario\n");
+        printf("2. Cambiar contraseña\n");
+        printf("3. Aumentar saldo\n");
+        printf("4. Volver\n");
+        printf("Seleccione una opción: ");
+
+        if (scanf("%d", &opcion) != 1)
+        {
+            limpiarBufferEntrada();
+            printf("Opción inválida.\n");
+            continue;
+        }
+        limpiarBufferEntrada();
+
+        switch (opcion)
+        {
+        case 1:
+        {
+            char nuevoUsuario[50];
+            printf("Ingrese el nuevo usuario: ");
+            if (!fgets(nuevoUsuario, sizeof(nuevoUsuario), stdin))
+            {
+                printf("No se pudo leer el usuario.\n");
+                break;
+            }
+            nuevoUsuario[strcspn(nuevoUsuario, "\r\n")] = '\0';
+            snprintf(lista[posicion].usuario, sizeof(lista[posicion].usuario), "%s", nuevoUsuario);
+            guardarClientes(lista, cantidad, "clientes.bin");
+            printf("Usuario actualizado.\n");
+            break;
+        }
+        case 2:
+        {
+            char nuevaContrasena[50];
+            printf("Ingrese la nueva contraseña: ");
+            if (!fgets(nuevaContrasena, sizeof(nuevaContrasena), stdin))
+            {
+                printf("No se pudo leer la contraseña.\n");
+                break;
+            }
+            nuevaContrasena[strcspn(nuevaContrasena, "\r\n")] = '\0';
+            snprintf(lista[posicion].contrasena, sizeof(lista[posicion].contrasena), "%s", nuevaContrasena);
+            guardarClientes(lista, cantidad, "clientes.bin");
+            printf("Contraseña actualizada.\n");
+            break;
+        }
+        case 3:
+        {
+            double monto = 0.0;
+            if (!leerDoublePositivo("Ingrese el monto a agregar al saldo: ", &monto))
+            {
+                printf("Monto inválido.\n");
+                break;
+            }
+            lista[posicion].saldo += monto;
+            guardarClientes(lista, cantidad, "clientes.bin");
+            printf("Saldo actualizado.\n");
+            break;
+        }
+        case 4:
+            return;
+        default:
+            printf("Opción inválida.\n");
+            break;
+        }
+    }
+}
+
 void mostrarMenuCliente(Cliente *cliente, Cliente lista[], int cantidad, int posicion)
 {
     (void)posicion;
@@ -429,7 +618,8 @@ void mostrarMenuCliente(Cliente *cliente, Cliente lista[], int cantidad, int pos
         printf("1. Consultar saldo\n");
         printf("2. Depositar dinero\n");
         printf("3. Retirar dinero\n");
-        printf("4. Cerrar sesión\n");
+        printf("4. Transferir dinero\n");
+        printf("5. Cerrar sesión\n");
         printf("Seleccione una opción: ");
 
         if (scanf("%d", &opcion) != 1)
@@ -473,6 +663,9 @@ void mostrarMenuCliente(Cliente *cliente, Cliente lista[], int cantidad, int pos
             break;
         }
         case 4:
+            transferirSaldo(lista, cantidad, posicion);
+            break;
+        case 5:
             printf("Sesión cerrada.\n");
             return;
         default:
@@ -491,7 +684,8 @@ void mostrarMenuAdmin(Cliente lista[], int *cantidad)
         printf("\n=== MENÚ ADMINISTRADOR ===\n");
         printf("1. Revisar clientes\n");
         printf("2. Registrar otro cliente\n");
-        printf("3. Salir\n");
+        printf("3. Modificar cliente\n");
+        printf("4. Salir\n");
         printf("Seleccione una opción: ");
 
         if (scanf("%d", &opcion) != 1)
@@ -526,6 +720,9 @@ void mostrarMenuAdmin(Cliente lista[], int *cantidad)
             guardarClientes(lista, *cantidad, "clientes.bin");
             break;
         case 3:
+            modificarCliente(lista, *cantidad);
+            break;
+        case 4:
             printf("Saliendo del menú administrador.\n");
             return;
         default:
