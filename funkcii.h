@@ -30,5 +30,6 @@ void registrarCliente(Cliente lista[], int *cantidad);
 int validarCedula(const char *cedula);
 void asignarNumeroCuentaLuhn(long long *numeroCuenta, int cantidad);
 int verificarNumeroCuentaLuhn(long long numeroCuenta);
+int iniciarSesion(const Cliente lista[], int cantidad);
 
 #endif

@@ -289,3 +289,33 @@ void registrarCliente(Cliente lista[], int *cantidad)
     printf("Numero de cuenta asignado: %lld\n", lista[*cantidad - 1].numeroCuenta);
 }
 
+int iniciarSesion(const Cliente lista[], int cantidad)
+{
+    configurarSalidaTexto();
+
+    char usuarioIngresado[50];
+    char contraseñaIngresada[50];
+    int encontrado = 0;
+    
+    printf("\n=== INICIO DE SESIÓN ===\n");
+    printf("Ingrese su usuario: ");
+    fgets(usuarioIngresado, sizeof(usuarioIngresado), stdin);
+    usuarioIngresado[strcspn(usuarioIngresado, "\r\n")] = '\0'; 
+    
+    printf("Ingrese su contraseña: ");
+    fgets(contraseñaIngresada, sizeof(contraseñaIngresada), stdin);
+    contraseñaIngresada[strcspn(contraseñaIngresada, "\r\n")] = '\0'; 
+    
+    for (int i = 0; i < cantidad; i++)
+    {
+        if (strcmp(lista[i].usuario, usuarioIngresado) == 0 && strcmp(lista[i].contrasena, contraseñaIngresada) == 0)
+        {
+            printf("\n[ÉXITO] Bienvenido/a, %s!\n", lista[i].nombresCompletos);
+            printf("Numero de cuenta: %lld | Saldo disponible: $%.2f\n", lista[i].numeroCuenta, lista[i].saldo);
+            return i; 
+        }
+    }
+    
+    printf("\n[ERROR] Usuario o contraseña incorrectos.\n");
+    return -1; // Retorna -1 si no se encontró a nadie
+}

@@ -35,16 +35,30 @@ int main(void)
             break;
 
         case 2:
-            printf("Inicio de sesion aun no implementado.\n");
-            break;
+            int posicionLogueada = iniciarSesion(lista, cantidad);
 
+            if (posicionLogueada == -1)
+            {
+                char respuesta;
+                printf("\nDesea registrarse como un nuevo cliente en Polibank? (s/n): ");
+                scanf(" %c", &respuesta); 
+                while (getchar() != '\n') {} 
+                
+                if (respuesta == 's' || respuesta == 'S')
+                {
+                    printf("\n--- Redireccionando al Registro ---\n");
+                    registrarCliente(lista, &cantidad);
+                    guardarClientes(lista, cantidad, "clientes.bin");
+                }
+            }
+            break;
         case 3:
-            printf("Saliendo del programa.\n");
+            printf("Saliendo del sistema Polibank... ¡Hasta luego!\n");
             break;
-
         default:
-            printf("Opcion invalida.\n");
+            printf("Opcion invalida. Intente nuevamente.\n");
             break;
         }
     } while (opcion != 3);
+    
 }
