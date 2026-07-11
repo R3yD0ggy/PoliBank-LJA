@@ -15,6 +15,14 @@ static void configurarSalidaTexto(void)
     SetConsoleCP(CP_UTF8);
 }
 
+static void limpiarBufferEntrada(void)
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+    }
+}
+
 int guardarClientes(const Cliente lista[], int cantidad, const char *nombreArchivo)
 {
     configurarSalidaTexto();
@@ -205,7 +213,7 @@ int verificarNumeroCuentaLuhn(long long numeroCuenta)
     char base[32];
     int longitud;
 
-    snprintf(texto, sizeof(texto), "%lld", numeroCuenta);
+    snprintf(texto, sizeof(texto), "%lld", (long long)numeroCuenta);
     longitud = (int)strlen(texto);
 
     if (longitud < 2)
@@ -228,7 +236,7 @@ void registrarCliente(Cliente lista[], int *cantidad)
     int mes;
     int etos;
     char usuario[50];
-    char contraseña[50];
+    char contrasena[50];
 
     if (*cantidad >= MAX_CLIENTES)
     {
@@ -250,14 +258,15 @@ void registrarCliente(Cliente lista[], int *cantidad)
     scanf("%d", &mes);
     printf("Ingrese anio de nacimiento: ");
     scanf("%d", &etos);
+    limpiarBufferEntrada();
 
     printf("Ingrese usuario: ");
     fgets(usuario, sizeof(usuario), stdin);
     usuario[strcspn(usuario, "\r\n")] = '\0';
 
     printf("Ingrese contraseña: ");
-    fgets(contraseña, sizeof(contraseña), stdin);
-    contraseña[strcspn(contraseña, "\r\n")] = '\0';
+    fgets(contrasena, sizeof(contrasena), stdin);
+    contrasena[strcspn(contrasena, "\r\n")] = '\0';
 
     if (!validarCedula(cedula) || !verificarFechas(dia, mes, etos))
     {
@@ -268,7 +277,7 @@ void registrarCliente(Cliente lista[], int *cantidad)
     snprintf(lista[*cantidad].nombresCompletos, sizeof(lista[*cantidad].nombresCompletos), "%s", nombre);
     snprintf(lista[*cantidad].cedula, sizeof(lista[*cantidad].cedula), "%s", cedula);
     snprintf(lista[*cantidad].usuario, sizeof(lista[*cantidad].usuario), "%s", usuario);
-    snprintf(lista[*cantidad].contraseña, sizeof(lista[*cantidad].contraseña), "%s", contraseña);
+    snprintf(lista[*cantidad].contrasena, sizeof(lista[*cantidad].contrasena), "%s", contrasena);
     lista[*cantidad].fechaNacimiento.dia = dia;
     lista[*cantidad].fechaNacimiento.mes = mes;
     lista[*cantidad].fechaNacimiento.anio = etos;

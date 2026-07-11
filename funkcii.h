@@ -18,7 +18,7 @@ typedef struct Cliente
     char nombresCompletos[100];
     char cedula[11];
     char usuario[50];
-    char contraseña[50];
+    char contrasena[50];
     FechaNacimiento fechaNacimiento;
     long long numeroCuenta;
     double saldo;
@@ -26,6 +26,7 @@ typedef struct Cliente
 
 int guardarClientes(const Cliente lista[], int cantidad, const char *nombreArchivo);
 int cargarClientes(Cliente lista[], int *cantidad, const char *nombreArchivo);
+void registrarCliente(Cliente lista[], int *cantidad);
 int validarCedula(const char *cedula);
 void asignarNumeroCuentaLuhn(long long *numeroCuenta, int cantidad);
 int verificarNumeroCuentaLuhn(long long numeroCuenta);
