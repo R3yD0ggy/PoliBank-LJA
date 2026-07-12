@@ -35,7 +35,6 @@ void mostrarMenuCliente(Cliente *cliente, Cliente lista[], int cantidad, int pos
 void mostrarMenuAdmin(Cliente lista[], int *cantidad);
 void depositarSaldo(Cliente *cliente, double monto);
 void retirarSaldo(Cliente *cliente, double monto);
-void transferirSaldo(Cliente lista[], int cantidad, int posicionOrigen);
 void modificarCliente(Cliente lista[], int cantidad);
 int buscarClientePorNumeroCuenta(const Cliente lista[], int cantidad, long long numeroCuenta, int *posicion);
 void mostrarDatosCliente(const Cliente *cliente);
